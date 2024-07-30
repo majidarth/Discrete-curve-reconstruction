@@ -25,7 +25,6 @@ if args["image"] != None:
     image = (1 - np.mean(np.array(plt.imread(args["image"]))[:,:,1:3], axis=2))**4
     pixel_size = round(image.shape[0]/(M-1))
 
-
     for i in range(M-1):
         for j in range(N-1):
             grid_potential[i,j] = np.mean(image[pixel_size*i:pixel_size*i + pixel_size, pixel_size*j:pixel_size*j + pixel_size])
