@@ -6,13 +6,14 @@ import Utils
 import Implementation_A
 import Implementation_B
 import Implementation_C
+import Implementation_D
 
 args = Potential_initialization.parse_args()
 N = int(args["width"])
 M = int(args["height"])
 n_iter = int(args["n_iter"])
 image = args["image"]
-implementation = globals()[args["implementation"]]
+implementation = globals()["Implementation_" + args["implementation"]]
 
 # initializing grid potential
 grid_potential = Potential_initialization.potential_init(N, M, image)

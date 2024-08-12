@@ -9,7 +9,7 @@ def parse_args():
     parser.add_argument("-M", "--height", required=True, help="height of the grid")
     parser.add_argument("--n_iter", required=True, help="number of iterations for Chambolle-Pock")
     parser.add_argument("-i", "--image", required=False, help="input image path, image must be larger than width-1 and height-1, and in RGBA format")
-    parser.add_argument("--implementation", required=True, help="algorithm implementation (A, B or C)")
+    parser.add_argument("--implementation", required=True, help="algorithm implementation (A, B, C or D)")
     args = vars(parser.parse_args())
     
     return args
