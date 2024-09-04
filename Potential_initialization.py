@@ -20,9 +20,10 @@ def potential_init(N, M, image):
     grid_potential = np.ones((M-1, N-1))
 
     if image != None:  # assembling potential from image
-        img = (1 - np.mean(np.array(plt.imread(image))[:,:,1:3], axis=2))**4 # arbitraty rescaling of the greyscale image
-        pixel_size_w = round(img.shape[1]/(N-1))
-        pixel_size_h = round(img.shape[0]/(M-1))
+        img = (1 - np.mean(np.array(plt.imread(image)), axis=2))**4 # arbitraty rescaling of the greyscale image
+        
+        pixel_size_w = int(img.shape[1]/(N-1))
+        pixel_size_h = int(img.shape[0]/(M-1))
         
         for i in range(M-1):
             for j in range(N-1):
@@ -32,7 +33,10 @@ def potential_init(N, M, image):
     # clicking a grid to define the potential
     # default level is 1, click once to set to 0.5, twice to set to 0
         def click_potential(event):
-            grid_potential[int(M-1 - event.ydata), int(event.xdata)] = max(grid_potential[int(M-1 - event.ydata), int(event.xdata)] - 0.5, 0) # flipping along y axis to match imshow
+            if event.inaxes:
+                grid_potential[int(M-1 - event.ydata), int(event.xdata)] = max(grid_potential[int(M-1 - event.ydata), int(event.xdata)] - 0.5, 0) # flipping along y axis to match imshow
+            else:
+                print("Point clicked was not inside of axes")
 
         x, y = np.meshgrid(np.arange(N), np.arange(M))
         plt.plot(x, y, color="b")

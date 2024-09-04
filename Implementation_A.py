@@ -42,14 +42,15 @@ def chambolle_pock(N, M, g, m0, n_iter, sigma, tau, theta=1):
         m_barre = new_m + theta*(new_m - old_m)
 
     energy = np.sum(g*np.abs(new_m))
-    print("energy = ", energy)
+    print("energy =", energy)
         
     return new_m
 
 def curve_reconstruction(N, M, points, grid_potential, n_iter):
     m0 = Utils.simple_curve(N, M, points)
+    
     g = Potential_initialization.edge_potential(N, M, grid_potential)
-    m = chambolle_pock(N, M, g, m0, n_iter, sigma=.99/(8*np.sqrt(np.sqrt(M*N))), tau=np.sqrt(np.sqrt(M*N)))
+    m = chambolle_pock(N, M, g, m0, n_iter, sigma=np.sqrt(np.sqrt(M*N)), tau=.99/(8*np.sqrt(np.sqrt(M*N))))
     z = Utils.chain_to_vf(N, M, m)
     plt.imshow(np.hypot(z[:,:,0], z[:,:,1]))
     plt.show()

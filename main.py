@@ -13,17 +13,30 @@ N = int(args["width"])
 M = int(args["height"])
 n_iter = int(args["n_iter"])
 image = args["image"]
-implementation = globals()["Implementation_" + args["implementation"]]
+if args["implementation"] != "all":
+    implementation = globals()["Implementation_" + args["implementation"]]
 
 # initializing grid potential
 grid_potential = Potential_initialization.potential_init(N, M, image)
 
+# visualizing grid potential
+plt.imshow(grid_potential, cmap="gray")
+plt.show()
+plt.close()
+
 # clicking source and sink points
 points = []
+points_vf = []
 plt.imshow(grid_potential, cmap="gray")
-Utils.plot_grid(N, M, click=True, points=points)
+Utils.plot_grid(N, M, click=True, points=points, points_vf=points_vf)
 plt.show()
 plt.close()
 
 # curve reconstruction with chosen implementation
-implementation.curve_reconstruction(N, M, points, grid_potential, n_iter)
+if args["implementation"] == "all":
+    Implementation_A.curve_reconstruction(N, M, points, grid_potential, n_iter)
+    Implementation_B.curve_reconstruction(N, M, points, grid_potential, n_iter)
+    Implementation_B.curve_reconstruction(N, M, points, grid_potential, n_iter, smooth=True)
+    Implementation_C.curve_reconstruction(N, M, points_vf, grid_potential, n_iter)
+else:
+    implementation.curve_reconstruction(N, M, points_vf if args["implementation"] in ("C", "D") else points, grid_potential, n_iter)

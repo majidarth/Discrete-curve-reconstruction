@@ -3,24 +3,23 @@ import scipy.fftpack as sft
 import matplotlib.pyplot as plt
 from matplotlib.backend_bases import MouseButton
 
-def click_points(event, points, chain):
+def click_points(event, points, points_vf):
     # first click for source, second click for sink
-    if chain:
-        fit = round
+    if event.inaxes:
+        points.append([round(event.xdata + 0.5), round(event.ydata + 0.5), len(points)%2 == 0]) # transposing by +0.5 because of imshow
+        points_vf.append([int(event.xdata + 0.5), int(event.ydata + 0.5), len(points)%2 == 0])
     else:
-        fit = int
-    if len(points) == 0:
-        points.append([fit(event.xdata + 0.5), fit(event.ydata + 0.5), +1]) # transposing by +0.5 because of imshow
-    elif len(points) == 1:
-        points.append([fit(event.xdata + 0.5), fit(event.ydata + 0.5), -1]) # transposing by +0.5 because of imshow
+        print("Point clicked was not inside of axes")
 
-def plot_grid(N, M, click=False, points=None, color=True, chain=True):
+    print("Number of points clicked:", len(points))
+
+def plot_grid(N, M, click=False, points=None, points_vf=None, color=True):
     x, y = np.meshgrid(np.arange(-0.5, N - 0.5), np.arange(-0.5, M - 0.5)) # transposing by -0.5 to match imshow
     plt.plot(x, y, color="b" if color else "w")
     plt.plot(np.transpose(x), np.transpose(y), color="b" if color else "w")
     
     if click:
-        plt.connect("button_press_event", lambda event: click_points(event, points, chain))
+        plt.connect("button_press_event", lambda event: click_points(event, points, points_vf))
 
 def plot_chain(N, M, c, grid_potential=None, plot_all_edges=True, plot_potential=False, threshold=1e-2):
     if plot_all_edges:
@@ -81,31 +80,6 @@ def build_filter(N, M):
     Filt[0,0] = 0
 
     return Filt
-    
-def simple_curve(N, M, points, chain=True):
-    # building a simple curve from source to sink
-    if chain:
-        m0 = np.zeros(M*(N-1) + (N-1)*M)
-        
-        if points[1][0] > points[0][0]:
-            m0[points[0][1]*(N-1) + points[0][0]:points[0][1]*(N-1) + points[1][0]] = 1
-        else:
-            m0[points[0][1]*(N-1) + points[1][0]:points[0][1]*(N-1) + points[0][0]] = -1
-
-        if points[1][1] > points[0][1]:
-            m0[M*(N-1) + (M-1)*max(points[0][0], points[1][0]) + points[0][1]:M*(N-1) + (M-1)*max(points[0][0], points[1][0]) + points[1][1]] = 1
-        else:
-            m0[M*(N-1) + (M-1)*max(points[0][0], points[1][0]) + points[1][1]:M*(N-1) + (M-1)*max(points[0][0], points[1][0]) + points[0][1]] = -1
-
-    else:
-        Filt = build_filter(N, M)
-        mu = np.zeros((M-1,N-1))
-        mu[points[0][1], points[0][0]] = 1
-        mu[points[1][1], points[1][0]] = -1
-        u0 = sft.dctn(sft.dctn(mu, type=2)*Filt, type=3)/(4*(M-1)*(N-1))
-        m0 = np.stack([np.vstack([u0[1:,:] - u0[:-1,:], np.zeros((1,N-1))]), np.hstack([u0[:,1:] - u0[:,:-1], np.zeros((M-1,1))])], axis=-1)
-        
-    return m0
 
 def chain_to_vf(N, M, c):
     z = np.zeros((M,N,2))
@@ -120,6 +94,62 @@ def vf_to_chain(N, M, v):
     vertical_numbering_edges = M*(N-1) + np.resize(np.arange(M-1)[:,None] + (M-1)*np.arange(N)[None,:], N*(M-1))
     m[vertical_numbering_edges] = np.reshape(v[:-1,:,0], N*(M-1))
     return m
+
+def simple_curve(N, M, points, chain=True, smooth=False):
+    # building simple curves from source to sink
+    if chain:
+        # changing N and M to convert chain to vf
+        N += 1
+        M += 1
+    
+    Filt = build_filter(N, M)
+    mu = np.zeros((M-1,N-1))
+    for i in range(len(points)//2):
+        mu[points[2*i][1], points[2*i][0]] += 1
+        mu[points[2*i+1][1], points[2*i+1][0]] += -1
+        if smooth:
+            if points[2*i][1] < M-2:
+                mu[points[2*i][1]+1, points[2*i][0]] += 0.5
+                if points[2*i][0] < N-2:
+                    mu[points[2*i][1]+1, points[2*i][0]+1] += 0.25
+                if points[2*i][0] > 0:
+                    mu[points[2*i][1]+1, points[2*i][0]-1] += 0.25
+            if points[2*i][1] > 0:
+                mu[points[2*i][1]-1, points[2*i][0]] += 0.5
+                if points[2*i][0] < N-2:
+                    mu[points[2*i][1]-1, points[2*i][0]+1] += 0.25
+                if points[2*i][0] > 0:
+                    mu[points[2*i][1]-1, points[2*i][0]-1] += 0.25
+            if points[2*i][0] < N-2:
+                mu[points[2*i][1], points[2*i][0]+1] += 0.5
+            if points[2*i][0] > 0:
+                mu[points[2*i][1], points[2*i][0]-1] += 0.5
+
+            if points[2*i+1][1] < M-2:
+                mu[points[2*i+1][1]+1, points[2*i+1][0]] += -0.5
+                if points[2*i+1][0] < N-2:
+                    mu[points[2*i+1][1]+1, points[2*i+1][0]+1] += -0.25
+                if points[2*i+1][0] > 0:
+                    mu[points[2*i+1][1]+1, points[2*i+1][0]-1] += -0.25
+            if points[2*i+1][1] > 0:
+                mu[points[2*i+1][1]-1, points[2*i+1][0]] += -0.5
+                if points[2*i+1][0] < N-2:
+                    mu[points[2*i+1][1]-1, points[2*i+1][0]+1] += -0.25
+                if points[2*i+1][0] > 0:
+                    mu[points[2*i+1][1]-1, points[2*i+1][0]-1] += -0.25
+            if points[2*i+1][0] < N-2:
+                mu[points[2*i+1][1], points[2*i+1][0]+1] += -0.5
+            if points[2*i+1][0] > 0:
+                mu[points[2*i+1][1], points[2*i+1][0]-1] += -0.5
+
+    
+    u0 = sft.dctn(sft.dctn(mu, type=2)*Filt, type=3)/(4*(M-1)*(N-1))
+    m0 = np.stack([np.vstack([u0[1:,:] - u0[:-1,:], np.zeros((1,N-1))]), np.hstack([u0[:,1:] - u0[:,:-1], np.zeros((M-1,1))])], axis=-1)
+
+    if chain:
+        return vf_to_chain(N-1, M-1, m0)
+    else:
+        return m0
 
 def proj_div(N, M, m, chain=True):
     # this projects onto free divergence fields

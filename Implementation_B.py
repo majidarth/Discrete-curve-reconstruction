@@ -1,7 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-import Potential_initialization
 import Utils
     
 def chambolle_pock(N, M, grid_potential, m0, n_iter, sigma, tau, theta=1):
@@ -42,13 +41,13 @@ def chambolle_pock(N, M, grid_potential, m0, n_iter, sigma, tau, theta=1):
 
     energy_grid = (new_m[:(M-1)*(N-1)]/2 + new_m[N-1:M*(N-1)]/2)*z[:,0] + (new_m[M*(N-1):M*(N-1) + (M-1)*(N-1)]/2 + new_m[M*(N-1) + (M-1):]/2)*z[:,1]
     energy = np.sum(energy_grid)
-    print("energy = ", energy)
+    print("energy =", energy)
         
     return new_m
 
-def curve_reconstruction(N, M, points, grid_potential, n_iter):
-    m0 = Utils.simple_curve(N, M, points)
-    m = chambolle_pock(N, M, grid_potential, m0, n_iter, sigma=.99/(8*np.sqrt(np.sqrt(M*N))), tau=np.sqrt(np.sqrt(M*N)))
+def curve_reconstruction(N, M, points, grid_potential, n_iter, smooth=False):
+    m0 = Utils.simple_curve(N, M, points, smooth=smooth)
+    m = chambolle_pock(N, M, grid_potential, m0, n_iter, sigma=np.sqrt(np.sqrt(M*N)), tau=.99/(8*np.sqrt(np.sqrt(M*N))))
     z = Utils.chain_to_vf(N, M, m)
     plt.imshow(np.hypot(z[:,:,0], z[:,:,1]))
     plt.show()
