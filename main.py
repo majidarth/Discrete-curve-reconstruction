@@ -35,8 +35,9 @@ plt.close()
 # curve reconstruction with chosen implementation
 if args["implementation"] == "all":
     Implementation_A.curve_reconstruction(N, M, points, grid_potential, n_iter)
-    Implementation_B.curve_reconstruction(N, M, points, grid_potential, n_iter)
-    Implementation_B.curve_reconstruction(N, M, points, grid_potential, n_iter, smooth=True)
-    Implementation_C.curve_reconstruction(N, M, points_vf, grid_potential, n_iter)
+    Implementation_B.curve_reconstruction(N, M, points_vf, grid_potential, n_iter)
+    Implementation_C.curve_reconstruction(N, M, points, grid_potential, n_iter)
+    # Implementation_C.curve_reconstruction(N, M, points, grid_potential, n_iter, smooth=True)
+    Implementation_D.curve_reconstruction(N, M, points_vf, grid_potential, n_iter)
 else:
-    implementation.curve_reconstruction(N, M, points_vf if args["implementation"] in ("C", "D") else points, grid_potential, n_iter)
+    implementation.curve_reconstruction(N, M, points_vf if args["implementation"] in ("B", "D") else points, grid_potential, n_iter)
