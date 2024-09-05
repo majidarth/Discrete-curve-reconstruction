@@ -56,8 +56,8 @@ def chambolle_pock(N, M, grid_potential, z0, n_iter, sigma, tau, theta=1):
 
         grid_potential_bc = np.broadcast_to(grid_potential, (3,N-1,M-1))
         mask = np.hypot(new_q[:,:,:,0], new_q[:,:,:,1]) > tau*grid_potential_bc
-        new_q[mask] *= ((np.hypot(new_q[mask,0], new_q[mask,1]) - tau*grid_potential_bc[mask])/np.hypot(new_q[mask,0], new_q[mask,1]))[:,None]
-        new_q[1-mask] = 0
+        new_q[mask] *= (1 - tau*grid_potential_bc[mask]/np.hypot(new_q[mask,0], new_q[mask,1]))[:,None]
+        new_q[np.invert(mask)] = 0
         q_barre = new_q + theta*(new_q - old_q)
         
     energy = np.sum(new_z*p)

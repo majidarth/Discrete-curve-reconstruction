@@ -105,9 +105,11 @@ def simple_curve(N, M, points, chain=True, smooth=False):
     Filt = build_filter(N, M)
     mu = np.zeros((M-1,N-1))
     for i in range(len(points)//2):
+        # only taking into account an even number of points
         mu[points[2*i][1], points[2*i][0]] += 1
         mu[points[2*i+1][1], points[2*i+1][0]] += -1
         if smooth:
+            # smoothening out source and sink
             if points[2*i][1] < M-2:
                 mu[points[2*i][1]+1, points[2*i][0]] += 0.5
                 if points[2*i][0] < N-2:
