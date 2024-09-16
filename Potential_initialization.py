@@ -8,8 +8,10 @@ def parse_args():
     parser.add_argument("-N", "--width", required=True, help="width of the grid")
     parser.add_argument("-M", "--height", required=True, help="height of the grid")
     parser.add_argument("--n_iter", required=True, help="number of iterations for Chambolle-Pock")
+    parser.add_argument("--n_curves", required=False, help="number of curves to find in the image")
     parser.add_argument("-i", "--image", required=False, help="input image path, image must be larger than width-1 and height-1, and in RGBA format")
     parser.add_argument("--implementation", required=True, help="algorithm implementation (A, B, C or D)")
+    parser.add_argument("--save", required=False, help="save result image", action="store_true")
     args = vars(parser.parse_args())
     
     return args
@@ -20,7 +22,8 @@ def potential_init(N, M, image):
     grid_potential = np.ones((M-1, N-1))
 
     if image != None:  # assembling potential from image
-        img = (1 - np.mean(np.array(plt.imread(image)), axis=2))**4 # arbitraty rescaling of the greyscale image
+        img = (1 - np.mean(np.array(plt.imread(image)), axis=2))**4 # arbitrary rescaling of the greyscale image
+        # img = (np.mean(np.array(plt.imread(image)), axis=2))**4 # arbitrary rescaling of the greyscale image
         
         pixel_size_w = int(img.shape[1]/(N-1))
         pixel_size_h = int(img.shape[0]/(M-1))

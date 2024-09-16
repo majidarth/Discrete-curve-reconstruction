@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import datetime
 
 import Utils
 
@@ -22,13 +23,16 @@ def chambolle_pock(N, M, grid_potential, m0, n_iter, sigma, tau, theta=1):
         m_barre = new_m + theta*(new_m - old_m)
 
     energy = np.sum(new_m*z)
+    print("Implementation B")
     print("energy =", energy)
     
     return new_m
 
-def curve_reconstruction(N, M, points, grid_potential, n_iter):
+def curve_reconstruction(N, M, points, grid_potential, n_iter, save=False):
     m0 = Utils.simple_curve(N, M, points, chain=False)
     m = chambolle_pock(N, M, grid_potential, m0, n_iter, sigma=np.sqrt(np.sqrt(M*N)), tau=.99/np.sqrt(np.sqrt(M*N)))
     plt.imshow(np.hypot(m[:,:,0], m[:,:,1]))
     plt.show()
     plt.close()
+    if save:
+        plt.imsave(str(datetime.datetime.now())+"_B.pdf", np.hypot(m[:,:,0], m[:,:,1]))

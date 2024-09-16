@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import datetime
 
 import Potential_initialization
 import Utils
@@ -42,11 +43,12 @@ def chambolle_pock(N, M, g, m0, n_iter, sigma, tau, theta=1):
         m_barre = new_m + theta*(new_m - old_m)
 
     energy = np.sum(g*np.abs(new_m))
+    print("Implementation A")
     print("energy =", energy)
         
     return new_m
 
-def curve_reconstruction(N, M, points, grid_potential, n_iter):
+def curve_reconstruction(N, M, points, grid_potential, n_iter, save=False):
     m0 = Utils.simple_curve(N, M, points)
     
     g = Potential_initialization.edge_potential(N, M, grid_potential)
@@ -55,5 +57,8 @@ def curve_reconstruction(N, M, points, grid_potential, n_iter):
     plt.imshow(np.hypot(z[:,:,0], z[:,:,1]))
     plt.show()
     plt.close()
+    if save:
+        plt.imsave(str(datetime.datetime.now())+"_A.pdf", np.hypot(z[:,:,0], z[:,:,1]))
+
     # Utils.plot_chain(N, M, m, grid_potential=grid_potential, plot_potential=True)
     # Utils.plot_chain(N, M, m, plot_all_edges=False)
