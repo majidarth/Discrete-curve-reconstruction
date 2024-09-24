@@ -161,15 +161,15 @@ def proj_div(N, M, m, chain=True):
     else:
         Filt = build_filter(N, M)
         z = m
-        # changing M and N to take into account bigger grid in chain case
-        M = M-1
+        # changing N and M to take into account bigger grid in chain case
         N = N-1
+        M = M-1
     
     u = np.vstack([z[0,:,0], z[1:-1,:,0]-z[0:-2,:,0], -z[-2,:,0]]) + np.hstack([np.reshape(z[:,0,1],(M,1)), z[:,1:-1,1]-z[:,0:-2,1], np.reshape(-z[:,-2,1], (M,1))])
     u = -sft.dctn(sft.dctn(u,type=2)*Filt,type=3)/(4*M*N) # -(D^*D)^{-1} [-D^* z]
 
-    dux = np.vstack([ u[1:,:]-u[:-1,:], np.zeros((1,N))])
-    duy = np.hstack([ u[:,1:]-u[:,:-1], np.zeros((M,1))])
+    dux = np.vstack([u[1:,:]-u[:-1,:], np.zeros((1,N))])
+    duy = np.hstack([u[:,1:]-u[:,:-1], np.zeros((M,1))])
     z[:,:,0] = z[:,:,0]-dux
     z[:,:,1] = z[:,:,1]-duy
     

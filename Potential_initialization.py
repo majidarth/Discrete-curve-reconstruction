@@ -11,7 +11,9 @@ def parse_args():
     parser.add_argument("--n_curves", required=False, help="number of curves to find in the image")
     parser.add_argument("-i", "--image", required=False, help="input image path, image must be larger than width-1 and height-1, and in RGBA format")
     parser.add_argument("--implementation", required=True, help="algorithm implementation (A, B, C or D)")
-    parser.add_argument("--save", required=False, help="save result image", action="store_true")
+    parser.add_argument("--save_result", required=False, help="save result image", action="store_true")
+    parser.add_argument("--save_diracs", required=False, help="save source and sink", action="store_true")
+    parser.add_argument("--diracs", required=False, help="numpy matrix file containing source and sink nodes", nargs=2)
     args = vars(parser.parse_args())
     
     return args
