@@ -9,6 +9,7 @@ import Implementation_A
 import Implementation_B
 import Implementation_C
 import Implementation_D
+import Implementation_D_2
 
 args = Potential_initialization.parse_args()
 N = int(args["width"])
@@ -59,5 +60,6 @@ if args["implementation"] == "all":
     Implementation_C.curve_reconstruction(N, M, points, grid_potential, n_iter, save=args["save_result"])
     Implementation_C.curve_reconstruction(N, M, points, grid_potential, n_iter, smooth=True, save=args["save_result"])
     Implementation_D.curve_reconstruction(N, M, points_vf, grid_potential, n_iter, save=args["save_result"])
+    Implementation_D_2.curve_reconstruction(N, M, points_vf, grid_potential, n_iter, save=args["save_result"])
 else:
-    implementation.curve_reconstruction(N, M, points_vf if args["implementation"] in ("B", "D") else points, grid_potential, n_iter, save=args["save_result"])
+    implementation.curve_reconstruction(N, M, points_vf if args["implementation"] in ("B", "D", "D_2") else points, grid_potential, n_iter, save=args["save_result"])
