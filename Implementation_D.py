@@ -32,7 +32,7 @@ def chambolle_pock(N, M, grid_potential, z0, n_iter, sigma, tau, theta=1):
         
         #L3*
         L3a_qbarre_x = np.vstack([0.5*q_barre[2,:-1,:,0] + 0.5*q_barre[2,1:,:,0], 0.5*q_barre[2,-1,:,0]])
-        L3a_qbarre_y = np.hstack([0.5*q_barre[2,:,:-1,1] + 0.5*q_barre[2,:,1:,1], 0.5*np.reshape(q_barre[2,:,-1,0], (M-1,1))])
+        L3a_qbarre_y = np.hstack([0.5*q_barre[2,:,:-1,1] + 0.5*q_barre[2,:,1:,1], 0.5*np.reshape(q_barre[2,:,-1,1], (M-1,1))])
         L3a_qbarre = np.stack([L3a_qbarre_x, L3a_qbarre_y], axis=-1)
         p -= sigma*L3a_qbarre
         
