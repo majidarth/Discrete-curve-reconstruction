@@ -5,11 +5,7 @@ import datetime
 import Potential_initialization
 import Utils
 
-import Implementation_A
-import Implementation_B
-import Implementation_C
-import Implementation_D
-import Implementation_D_2
+import Implementation
 
 args = Potential_initialization.parse_args()
 N = int(args["width"])
@@ -20,46 +16,48 @@ if args["n_curves"] != None:
 else:
     n_curves = 1
 image = args["image"]
-if args["implementation"] != "all":
-    implementation = globals()["Implementation_" + args["implementation"]]
 
-# initializing grid potential
+#initializing grid potential
 grid_potential = Potential_initialization.potential_init(N, M, image)
 
-# visualizing grid potential
+#visualizing grid potential
 plt.imshow(grid_potential, cmap="gray")
 plt.show()
 plt.close()
 
 # clicking source and sink points
-if args["diracs"] == None:
+if args["diracs"] == None and args["max_pot"] == None:
+    print("Click on source and sink points on the blue grid")
     grid_potential_rgb = np.stack([grid_potential, grid_potential, grid_potential], axis=-1)
     points = []
-    points_vf = []
     for j in range(n_curves):
         plt.imshow(grid_potential_rgb)
-        Utils.plot_grid(N, M, click=True, points=points, points_vf=points_vf)
+        Utils.plot_grid(N, M, click=True, points=points)
         plt.show()
         plt.close()
-        for i in range(len(points)):
-            small_grid_x = np.arange(-1,2)[((points[i][1] + np.arange(-1,2)) >= 0)*((points[i][1] + np.arange(-1,2)) <= M-1)]
-            small_grid_y = np.arange(-1,2)[((points[i][0] + np.arange(-1,2)) >= 0)*((points[i][1] + np.arange(-1,2)) <= N-1)]
-            grid_potential_rgb[points[i][1] + small_grid_x[:,None], points[i][0] + small_grid_y[None,:]] = [1, 0, 0]
-else:
-    points = np.load(args["diracs"][0])
-    points_vf = np.load(args["diracs"][1])
+        
+elif args["diracs"] != None:
+    points = np.load(args["diracs"])
+
+if args["max_pot"] != None:
+    max_pot = float(args["max_pot"]) #points are chosen randomly where potential is under max_pot and not on the border
+    n_points = 2*n_curves #number of points (source and sink)
+    close = args["points_close"] #whether or not source and sink couples need to be chosen close to one another
+    
+    potential_under_max = np.argwhere(grid_potential < max_pot)
+    potential_under_max = potential_under_max[(potential_under_max[:,0] > 0)*(potential_under_max[:,0] < M-2-2*close)*(potential_under_max[:,1] > 0)*(potential_under_max[:,1] < N-2-2*close)]
+    args_source = np.random.choice(len(potential_under_max), size=n_points)
+    points_source = np.flip(potential_under_max[args_source],axis=1).tolist() #need to flip x,y
+    if close:
+        points = [points_source[i//2]+[0] if i%2==0 else [points_source[i//2][0], points_source[i//2][1]+1, 1] for i in range(n_points)]
+    else:
+        points = [points_source[i]+[0] if i%2==0 else points_source[i]+[1] for i in range(n_points)]
 
 if args["save_diracs"]:
     np.save(str(datetime.datetime.now())+"_diracs.npy", points)
-    np.save(str(datetime.datetime.now())+"_diracs_vf.npy", points_vf)
 
-# curve reconstruction with chosen implementation
-if args["implementation"] == "all":
-    Implementation_A.curve_reconstruction(N, M, points, grid_potential, n_iter, save=args["save_result"])
-    Implementation_B.curve_reconstruction(N, M, points_vf, grid_potential, n_iter, save=args["save_result"])
-    Implementation_C.curve_reconstruction(N, M, points, grid_potential, n_iter, save=args["save_result"])
-    Implementation_C.curve_reconstruction(N, M, points, grid_potential, n_iter, smooth=True, save=args["save_result"])
-    Implementation_D.curve_reconstruction(N, M, points_vf, grid_potential, n_iter, save=args["save_result"])
-    Implementation_D_2.curve_reconstruction(N, M, points_vf, grid_potential, n_iter, save=args["save_result"])
+if args["n_moves"] == None or int(args["n_moves"]) == 0:
+    Implementation.curve_reconstruction(N, M, points, grid_potential, n_iter, save=args["save_result"])
+
 else:
-    implementation.curve_reconstruction(N, M, points_vf if args["implementation"] in ("B", "D", "D_2") else points, grid_potential, n_iter, save=args["save_result"])
+    Implementation.curve_discovery(N, M, points, grid_potential, n_iter, int(args["n_moves"]), float(args["max_pot"]))
