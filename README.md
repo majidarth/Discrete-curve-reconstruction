@@ -13,6 +13,6 @@ Complete list of possible arguments and their description:
 |`--save_result`|Toggle whether or not result image of the reconstructed curve is saved|`False`|
 |`--save_diracs`|Toggle whether or not initial Dirac masses are saved in a `.npy` file|`False`|
 |`--diracs`|Path of a `.npy` file of previously saved Dirac masses|`None`|
-|`--max_pot`|If this value is specified, initial Dirac masses will be chosen at random, at pixels where the image's greyscale level is below this value|`None`|
+|`--max_pot`|If this value is specified, initial Dirac masses will be chosen at random, at pixels where the image's grayscale level is below this value|`None`|
 |`--points_close`|Toggle whether or not, when initial Dirac masses are chosen at random, source and sink pairs are to be chosen at one pixel distance to each other|`False`|
 |`--n_moves`|Number of maximum movement steps for Dirac masses|`1`|
